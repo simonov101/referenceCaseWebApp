@@ -12,6 +12,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace referenceCaseWebApp
 {
@@ -28,7 +32,16 @@ namespace referenceCaseWebApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<ICategoryRepository, CategoryRepository>();
+            services.AddSingleton<IUserRepository, UserRepository>();
             services.AddControllers();
+            services.AddControllers(options =>
+            {
+                options.OutputFormatters.RemoveType<SystemTextJsonOutputFormatter>();
+                options.OutputFormatters.Add(new SystemTextJsonOutputFormatter(new JsonSerializerOptions(JsonSerializerDefaults.Web)
+                {
+                    ReferenceHandler = ReferenceHandler.Preserve,
+                }));
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "referenceCaseWebApp", Version = "v1" });
